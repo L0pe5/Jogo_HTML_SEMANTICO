@@ -4,14 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Semantic HTML Challenge</title>
+    <meta name="description" content="Jogo educativo de HTML Semântico">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>🎮 Semantic HTML Challenge</h1>
+    <main class="container">
+        <h1 role="heading" aria-level="1">🎮 Jogo de Desafios em HTML Semântico</h1>
         <p class="subtitle">Arraste as tags semânticas para os lugares corretos!</p>
         
-        <div class="level-selector" id="level-selector">
+        <section class="level-selector" id="level-selector">
             <h2>Escolha o nível de dificuldade:</h2>
             <div class="buttons">
                 <button data-level="easy">Fácil</button>
@@ -19,31 +20,31 @@
                 <button data-level="hard">Difícil</button>
                 <button data-level="expert">Expert</button>
             </div>
-        </div>
+        </section>
 
-        <div class="game-area" id="game-area" style="display: none;">
-            <div class="challenge-info">
+        <section class="game-area" id="game-area" style="display: none;">
+            <header class="challenge-info">
                 <h2 id="challenge-title">Desafio: Blog Simples</h2>
                 <p id="challenge-description">Arraste as tags para construir a estrutura semântica correta.</p>
-            </div>
+            </header>
 
-            <div class="page-layout" id="page-layout">
+            <section class="page-layout" id="page-layout">
                 <!-- Áreas serão geradas dinamicamente pelo JavaScript -->
-            </div>
+            </section>
 
-            <div class="tag-bank" id="tag-bank">
+            <aside class="tag-bank" id="tag-bank">
                 <!-- Tags serão geradas dinamicamente pelo JavaScript -->
-            </div>
+            </aside>
 
-            <div class="feedback">
+            <footer class="feedback">
                 <p id="message">Escolha a tag semântica correta!</p>
                 <p>Pontuação: <span id="score">0</span></p>
                 <p>Nível: <span id="current-level">-</span></p>
-            </div>
+            </footer>
 
             <button id="next-level-btn" class="hidden">Próximo Nível →</button>
-        </div>
-    </div>
+        </section>
+    </main>
 
     <script src="script.js"></script>
 </body>

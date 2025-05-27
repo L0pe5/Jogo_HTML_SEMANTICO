@@ -193,3 +193,42 @@ h1 {
 .tag[data-tag="figure"] { background: #d35400; }
 .tag[data-tag="time"] { background: #16a085; }
 .tag[data-tag="address"] { background: #c0392b; }
+
+
+@media (max-width: 768px) {
+    .buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .tag-bank {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .page-layout {
+        grid-template-columns: 1fr !important;
+        min-height: auto;
+    }
+
+    .drop-zone {
+        font-size: 14px;
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 1.8em;
+    }
+
+    .container {
+        padding: 20px 15px;
+    }
+
+    .game-area {
+        padding: 20px 10px;
+    }
+
+    .buttons button {
+        width: 100%;
+    }
+}
