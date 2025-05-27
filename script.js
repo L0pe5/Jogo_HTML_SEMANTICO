@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const unlockedLevels = JSON.parse(localStorage.getItem("unlockedLevels")) || ["easy"];
+    
     const levelSelector = document.getElementById('level-selector');
     const gameArea = document.getElementById('game-area');
     const pageLayout = document.getElementById('page-layout');
@@ -535,12 +537,22 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         ]
       };
+    
     document.querySelectorAll('.buttons button').forEach(button => {
+        const level = button.dataset.level;
+
+        if (!unlockedLevels.includes(level)) {
+            button.disabled = true;
+            button.style.opacity = "0.5";
+            button.title = "Complete o nível anterior para desbloquear";
+        }
+
         button.addEventListener('click', () => {
-            currentLevel = button.dataset.level;
+            currentLevel = level;
             startGame(currentLevel);
         });
     });
+    
 
     nextLevelBtn.addEventListener('click', () => {
         const levelOrder = ["easy", "medium", "hard", "expert"];
@@ -567,8 +579,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function loadChallenge(index) {
         if (index >= currentLevelChallenges.length) {
+            
             messageEl.textContent = `Parabéns! Você completou todos os desafios do nível ${currentLevel}!`;
             nextLevelBtn.classList.remove('hidden');
+
+            const levelOrder = ["easy", "medium", "hard", "expert"];
+            const nextIndex = levelOrder.indexOf(currentLevel) + 1;
+            const nextLevel = levelOrder[nextIndex];
+
+            if (nextLevel && !unlockedLevels.includes(nextLevel)) {
+                unlockedLevels.push(nextLevel);
+                localStorage.setItem("unlockedLevels", JSON.stringify(unlockedLevels));
+            }
+    
             return;
         }
 
