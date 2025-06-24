@@ -1,23 +1,23 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const unlockedLevels = JSON.parse(localStorage.getItem("unlockedLevels")) || ["easy"];
-    
-    const levelSelector = document.getElementById('level-selector');
-    const gameArea = document.getElementById('game-area');
-    const pageLayout = document.getElementById('page-layout');
-    const tagBank = document.getElementById('tag-bank');
-    const messageEl = document.getElementById('message');
-    const scoreEl = document.getElementById('score');
-    const currentLevelEl = document.getElementById('current-level');
-    const nextLevelBtn = document.getElementById('next-level-btn');
-    const challengeTitle = document.getElementById('challenge-title');
-    const challengeDescription = document.getElementById('challenge-description');
+  const unlockedLevels = JSON.parse(localStorage.getItem("unlockedLevels")) || ["easy"];
+  
+  const levelSelector = document.getElementById('level-selector');
+  const gameArea = document.getElementById('game-area');
+  const pageLayout = document.getElementById('page-layout');
+  const tagBank = document.getElementById('tag-bank');
+  const messageEl = document.getElementById('message');
+  const scoreEl = document.getElementById('score');
+  const currentLevelEl = document.getElementById('current-level');
+  const challengeTitle = document.getElementById('challenge-title');
+  const challengeDescription = document.getElementById('challenge-description');
+  const buttonContainer = document.getElementById('button-container');
 
-    let score = 0;
-    let currentLevel = null;
-    let completedZones = 0;
-    let mistakes = 0;
-    let currentChallengeIndex = 0;
-    let currentLevelChallenges = [];
+  let score = 0;
+  let currentLevel = null;
+  let completedZones = 0;
+  let mistakes = 0;
+  let currentChallengeIndex = 0;
+  let currentLevelChallenges = [];
 
     const levels = {
         easy: [
@@ -535,170 +535,270 @@ document.addEventListener('DOMContentLoaded', () => {
               { zone: "Rodapé", expected: "footer", hint: "Referências bibliográficas" }
             ]
           }
+        ],
+        extreme: [
+          {
+            title: "Site Complexo com Microdados",
+            description: "Combine tags semânticas com schema.org",
+            tags: ["header", "main", "article", "section", "footer", "time", "address", "figure"],
+            layout: [
+              { zone: "Cabeçalho", expected: "header", hint: "Área superior com título" },
+              { zone: "Menu Principal", expected: "nav", hint: "Links de navegação" },
+              { zone: "Conteúdo", expected: "main", hint: "Conteúdo principal" },
+              { zone: "Artigo", expected: "article", hint: "Conteúdo independente" },
+              { zone: "Seção", expected: "section", hint: "Agrupamento temático" },
+              { zone: "Data", expected: "time", hint: "Informação temporal" },
+              { zone: "Autor", expected: "address", hint: "Informação de contato" },
+              { zone: "Imagem", expected: "figure", hint: "Conteúdo multimídia" },
+              { zone: "Rodapé", expected: "footer", hint: "Informações finais" }
+            ]
+          },
+          {
+            title: "Aplicação Web Completa",
+            description: "Estruture uma aplicação web complexa com todas as tags semânticas",
+            tags: ["header", "nav", "main", "article", "section", "aside", "footer", "time", "address", "figure", "details", "summary"],
+            layout: [
+              { zone: "Cabeçalho", expected: "header", hint: "Área superior com título" },
+              { zone: "Menu Global", expected: "nav", hint: "Navegação principal" },
+              { zone: "Conteúdo", expected: "main", hint: "Conteúdo principal" },
+              { zone: "Artigo", expected: "article", hint: "Conteúdo independente" },
+              { zone: "Seção", expected: "section", hint: "Agrupamento temático" },
+              { zone: "Barra Lateral", expected: "aside", hint: "Conteúdo relacionado" },
+              { zone: "Data", expected: "time", hint: "Informação temporal" },
+              { zone: "Contato", expected: "address", hint: "Informação de contato" },
+              { zone: "Galeria", expected: "figure", hint: "Conteúdo multimídia" },
+              { zone: "Detalhes", expected: "details", hint: "Widget expansível" },
+              { zone: "Resumo", expected: "summary", hint: "Título do expansível" },
+              { zone: "Rodapé", expected: "footer", hint: "Informações finais" }
+            ]
+          }
         ]
       };
     
-    document.querySelectorAll('.buttons button').forEach(button => {
-        const level = button.dataset.level;
+    // Atualiza a exibição dos botões de nível
+    function updateLevelButtons() {
+      document.querySelectorAll('.buttons button').forEach(button => {
+          const level = button.dataset.level;
 
-        if (!unlockedLevels.includes(level)) {
-            button.disabled = true;
-            button.style.opacity = "0.5";
-            button.title = "Complete o nível anterior para desbloquear";
-        }
+          if (!unlockedLevels.includes(level)) {
+              button.disabled = true;
+              button.style.opacity = "0.5";
+              button.title = "Complete o nível anterior para desbloquear";
+          } else {
+              button.disabled = false;
+              button.style.opacity = "1";
+              button.title = "Jogar este nível";
+              
+              // Adiciona checkmark se o nível foi completado
+              if (unlockedLevels.includes(level) && level !== "easy") {
+                  if (!button.querySelector('.checkmark')) {
+                      const checkmark = document.createElement('span');
+                      checkmark.className = 'checkmark';
+                      checkmark.innerHTML = ' ✓';
+                      checkmark.style.color = '#2ecc71';
+                      button.appendChild(checkmark);
+                  }
+              }
+          }
 
-        button.addEventListener('click', () => {
-            currentLevel = level;
-            startGame(currentLevel);
-        });
-    });
-    
+          button.addEventListener('click', () => {
+              currentLevel = level;
+              score = 0;
+              scoreEl.textContent = score;
+              startGame(currentLevel);
+          });
+      });
+  }
 
-    nextLevelBtn.addEventListener('click', () => {
-        const levelOrder = ["easy", "medium", "hard", "expert"];
-        const nextLevelIndex = levelOrder.indexOf(currentLevel) + 1;
-        if (nextLevelIndex < levelOrder.length) {
-            currentLevel = levelOrder[nextLevelIndex];
-            nextLevelBtn.classList.add('hidden'); // Adicione esta linha
-            startGame(currentLevel);
-        }
-    });
+  updateLevelButtons();
 
-    function startGame(level) {
-        levelSelector.classList.add('hidden');
-        gameArea.style.display = 'block';
-        nextLevelBtn.classList.add('hidden'); // Adicione esta linha
-    
-        currentLevel = level;
-        currentLevelChallenges = levels[level];
-        currentChallengeIndex = 0;
-    
-        loadChallenge(currentChallengeIndex);
-        mistakes = 0;
-    }
+  function startGame(level) {
+      levelSelector.classList.add('hidden');
+      gameArea.style.display = 'block';
+      buttonContainer.innerHTML = '';
+  
+      currentLevel = level;
+      currentLevelChallenges = levels[level];
+      currentChallengeIndex = 0;
+  
+      loadChallenge(currentChallengeIndex);
+      mistakes = 0;
+  }
 
-    function loadChallenge(index) {
-        if (index >= currentLevelChallenges.length) {
-            
-            messageEl.textContent = `Parabéns! Você completou todos os desafios do nível ${currentLevel}!`;
-            nextLevelBtn.classList.remove('hidden');
+  function loadChallenge(index) {
+      if (index >= currentLevelChallenges.length) {
+          messageEl.textContent = `Parabéns! Você completou todos os desafios do nível ${currentLevel}!`;
+          
+          // Cria botões para ações pós-nível
+          buttonContainer.innerHTML = '';
+          
+          // Botão Repetir Nível
+          const repeatBtn = document.createElement('button');
+          repeatBtn.textContent = 'Repetir Nível';
+          repeatBtn.className = 'repeat-level-btn';
+          repeatBtn.addEventListener('click', () => {
+              currentChallengeIndex = 0;
+              score = 0;
+              scoreEl.textContent = score;
+              loadChallenge(currentChallengeIndex);
+          });
+          buttonContainer.appendChild(repeatBtn);
+          
+          // Botão Próximo Nível (se houver)
+          const levelOrder = ["easy", "medium", "hard", "expert", "extreme"];
+          const nextIndex = levelOrder.indexOf(currentLevel) + 1;
+          
+          if (nextIndex < levelOrder.length) {
+              const nextLevelBtn = document.createElement('button');
+              nextLevelBtn.textContent = 'Próximo Nível →';
+              nextLevelBtn.className = 'next-level-btn';
+              nextLevelBtn.addEventListener('click', () => {
+                  const nextLevel = levelOrder[nextIndex];
+                  if (!unlockedLevels.includes(nextLevel)) {
+                      unlockedLevels.push(nextLevel);
+                      localStorage.setItem("unlockedLevels", JSON.stringify(unlockedLevels));
+                      updateLevelButtons();
+                  }
+                  currentLevel = nextLevel;
+                  currentChallengeIndex = 0;
+                  score = 0;
+                  scoreEl.textContent = score;
+                  startGame(currentLevel);
+              });
+              buttonContainer.appendChild(nextLevelBtn);
+          }
+          
+          // Botão Voltar para Seleção de Nível
+          const backBtn = document.createElement('button');
+          backBtn.textContent = 'Voltar aos Níveis';
+          backBtn.className = 'back-level-btn';
+          backBtn.addEventListener('click', () => {
+              levelSelector.classList.remove('hidden');
+              gameArea.style.display = 'none';
+          });
+          buttonContainer.appendChild(backBtn);
+          
+          return;
+      }
 
-            const levelOrder = ["easy", "medium", "hard", "expert"];
-            const nextIndex = levelOrder.indexOf(currentLevel) + 1;
-            const nextLevel = levelOrder[nextIndex];
+      const challenge = currentLevelChallenges[index];
+      challengeTitle.textContent = `Desafio ${index + 1} de ${currentLevelChallenges.length}: ${challenge.title}`;
+      challengeDescription.textContent = challenge.description;
+      currentLevelEl.textContent = currentLevel.charAt(0).toUpperCase() + currentLevel.slice(1);
 
-            if (nextLevel && !unlockedLevels.includes(nextLevel)) {
-                unlockedLevels.push(nextLevel);
-                localStorage.setItem("unlockedLevels", JSON.stringify(unlockedLevels));
-            }
-    
-            return;
-        }
+      renderLayout(challenge.layout);
+      renderTags(challenge.tags);
 
-        const challenge = currentLevelChallenges[index];
-        challengeTitle.textContent = `Desafio ${index + 1} de ${currentLevelChallenges.length}: ${challenge.title}`;
-        challengeDescription.textContent = challenge.description;
-        currentLevelEl.textContent = currentLevel.charAt(0).toUpperCase() + currentLevel.slice(1);
+      completedZones = 0;
+  }
 
-        renderLayout(challenge.layout);
-        renderTags(challenge.tags);
+  function renderLayout(layout) {
+      pageLayout.innerHTML = '';
+      pageLayout.style.gridTemplateRows = `repeat(${layout.length}, 1fr)`;
 
-        completedZones = 0;
-        nextLevelBtn.classList.add('hidden');
-    }
+      layout.forEach(zone => {
+          const dropZone = document.createElement('div');
+          dropZone.className = 'drop-zone';
+          dropZone.dataset.expected = zone.expected;
+          dropZone.dataset.hint = zone.hint;
+          dropZone.textContent = zone.zone;
 
-    function renderLayout(layout) {
-        pageLayout.innerHTML = '';
-        pageLayout.style.gridTemplateRows = `repeat(${layout.length}, 1fr)`;
+          dropZone.addEventListener('dragover', (e) => {
+              e.preventDefault();
+              dropZone.classList.add('highlight');
+          });
 
-        layout.forEach(zone => {
-            const dropZone = document.createElement('div');
-            dropZone.className = 'drop-zone';
-            dropZone.dataset.expected = zone.expected;
-            dropZone.dataset.hint = zone.hint;
-            dropZone.textContent = zone.zone;
+          dropZone.addEventListener('dragleave', () => {
+              dropZone.classList.remove('highlight');
+          });
 
-            dropZone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                dropZone.classList.add('highlight');
-            });
+          dropZone.addEventListener('drop', (e) => {
+              e.preventDefault();
+              dropZone.classList.remove('highlight');
 
-            dropZone.addEventListener('dragleave', () => {
-                dropZone.classList.remove('highlight');
-            });
+              const draggedTag = e.dataTransfer.getData('text/plain');
+              const expectedTag = dropZone.dataset.expected;
 
-            dropZone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                dropZone.classList.remove('highlight');
+              if (draggedTag === expectedTag) {
+                  dropZone.innerHTML = `&lt;${draggedTag}&gt; <small>${zone.zone}</small>`;
+                  dropZone.classList.add('correct');
+                  
+                  // Pontuação baseada no nível de dificuldade
+                  let points = 10;
+                  if (currentLevel === "medium") points = 12;
+                  else if (currentLevel === "hard") points = 15;
+                  else if (currentLevel === "expert") points = 18;
+                  else if (currentLevel === "extreme") points = 20;
+                  
+                  score += points;
+                  messageEl.textContent = `Correto! +${points} pontos!`;
+                  messageEl.className = "correct";
+                  completedZones++;
 
-                const draggedTag = e.dataTransfer.getData('text/plain');
-                const expectedTag = dropZone.dataset.expected;
+                  if (completedZones === layout.length) {
+                      messageEl.textContent = `Parabéns! Você completou este desafio com ${score} pontos!`;
 
-                if (draggedTag === expectedTag) {
-                    dropZone.innerHTML = `&lt;${draggedTag}&gt; <small>${zone.zone}</small>`;
-                    dropZone.classList.add('correct');
-                    score += 10;
-                    messageEl.textContent = "Correto! Essa tag é semântica aqui.";
-                    messageEl.className = "correct";
-                    completedZones++;
+                      currentChallengeIndex++;
 
-                    if (completedZones === layout.length) {
-    messageEl.textContent = `Parabéns! Você completou este desafio com ${score} pontos!`;
+                      if (currentChallengeIndex >= currentLevelChallenges.length) {
+                          // Fim do nível
+                          setTimeout(() => {
+                              loadChallenge(currentChallengeIndex);
+                          }, 1500);
+                      } else {
+                          setTimeout(() => {
+                              loadChallenge(currentChallengeIndex);
+                              mistakes = 0;
+                          }, 1500);
+                      }
+                  }
+              } else {
+                  // Penalidade baseada no nível de dificuldade
+                  let penalty = 3;
+                  if (currentLevel === "medium") penalty = 4;
+                  else if (currentLevel === "hard") penalty = 5;
+                  else if (currentLevel === "expert") penalty = 6;
+                  else if (currentLevel === "extreme") penalty = 8;
+                  
+                  score = Math.max(0, score - penalty);
+                  mistakes++;
+                  messageEl.textContent = `Ops! Aqui o ideal é <${expectedTag}>. -${penalty} pontos (${mistakes}/3 erros)`;
+                  messageEl.className = "error";
 
-    currentChallengeIndex++;
+                  if (mistakes >= 3) {
+                      messageEl.textContent = "Você perdeu! Reiniciando o nível...";
+                      setTimeout(() => {
+                          currentChallengeIndex = 0;
+                          mistakes = 0;
+                          score = 0;
+                          scoreEl.textContent = score;
+                          loadChallenge(currentChallengeIndex);
+                      }, 1500);
+                  }
+              }
 
-    if (currentChallengeIndex >= currentLevelChallenges.length) {
-        // Fim do nível
-        nextLevelBtn.classList.remove('hidden');
-    } else {
-        setTimeout(() => {
-            loadChallenge(currentChallengeIndex);
-        mistakes = 0;
-        }, 1500);
-    }
-}
-                } else {
-                    
-                    score = Math.max(0, score - 3);
-                    mistakes++;
-                    messageEl.textContent = `Ops! Aqui o ideal é <${expectedTag}>. (${mistakes}/3 erros)`;
-                    messageEl.className = "error";
+              scoreEl.textContent = score;
+          });
 
-                    if (mistakes >= 3) {
-                        messageEl.textContent = "Você perdeu! Reiniciando o nível...";
-                        setTimeout(() => {
-                            currentChallengeIndex = 0;
-                            mistakes = 0;
-                            score = 0;
-                            scoreEl.textContent = score;
-                            loadChallenge(currentChallengeIndex);
-                        }, 1500);
-                    }
+          pageLayout.appendChild(dropZone);
+      });
+  }
 
-                }
+  function renderTags(tags) {
+      tagBank.innerHTML = '';
 
-                scoreEl.textContent = score;
-            });
+      tags.forEach(tag => {
+          const tagElement = document.createElement('div');
+          tagElement.className = 'tag';
+          tagElement.dataset.tag = tag;
+          tagElement.textContent = `<${tag}>`;
+          tagElement.draggable = true;
 
-            pageLayout.appendChild(dropZone);
-        });
-    }
+          tagElement.addEventListener('dragstart', (e) => {
+              e.dataTransfer.setData('text/plain', tag);
+          });
 
-    function renderTags(tags) {
-        tagBank.innerHTML = '';
-
-        tags.forEach(tag => {
-            const tagElement = document.createElement('div');
-            tagElement.className = 'tag';
-            tagElement.dataset.tag = tag;
-            tagElement.textContent = `<${tag}>`;
-            tagElement.draggable = true;
-
-            tagElement.addEventListener('dragstart', (e) => {
-                e.dataTransfer.setData('text/plain', tag);
-            });
-
-            tagBank.appendChild(tagElement);
-        });
-    }
+          tagBank.appendChild(tagElement);
+      });
+  }
 });
