@@ -540,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
           {
             title: "Site Complexo com Microdados",
             description: "Combine tags semânticas com schema.org",
-            tags: ["header", "main", "article", "section", "footer", "time", "address", "figure"],
+            tags: ["header", "main", "article", "section", "footer", "time", "address", "figure", "details", "summary", "mark", "nav", "aside"],
             layout: [
               { zone: "Cabeçalho", expected: "header", hint: "Área superior com título" },
               { zone: "Menu Principal", expected: "nav", hint: "Links de navegação" },
@@ -556,7 +556,7 @@ document.addEventListener('DOMContentLoaded', () => {
           {
             title: "Aplicação Web Completa",
             description: "Estruture uma aplicação web complexa com todas as tags semânticas",
-            tags: ["header", "nav", "main", "article", "section", "aside", "footer", "time", "address", "figure", "details", "summary"],
+            tags: ["header", "nav", "main", "article", "section", "aside", "footer", "time", "address", "figure", "details", "summary", "mark"],
             layout: [
               { zone: "Cabeçalho", expected: "header", hint: "Área superior com título" },
               { zone: "Menu Global", expected: "nav", hint: "Navegação principal" },
